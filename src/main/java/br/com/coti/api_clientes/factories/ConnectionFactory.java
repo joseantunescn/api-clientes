@@ -7,8 +7,8 @@ public class ConnectionFactory {
 
         public static Connection getConnection() throws Exception {
 
-            var host = "jdb:postgresql://localhost:5432/bd-api-clientes";
-            var user = "postgresql";
+            var host = "jdbc:postgresql://localhost:5432/bd-api-clientes";
+            var user = "postgres";
             var password = "coti";
 
             return DriverManager.getConnection(host, user, password);

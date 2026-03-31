@@ -9,7 +9,7 @@ public class ClienteRepository {
     public void inserir(Cliente cliente) throws Exception {
 
         try(var connection = ConnectionFactory.getConnection()) {
-            var statement = connection.prepareStatement("INSERT INTO cliente (nome, cpf) VALUES (?, ?)");
+            var statement = connection.prepareStatement("INSERT INTO clientes (nome, cpf) VALUES (?, ?)");
             statement.setString(1, cliente.getNome());
             statement.setString(2, cliente.getCpf());
             statement.execute();
