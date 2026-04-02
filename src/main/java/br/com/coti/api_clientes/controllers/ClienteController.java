@@ -1,10 +1,9 @@
 package br.com.coti.api_clientes.controllers;
 
+import br.com.coti.api_clientes.dtos.ClienteRequest;
 import br.com.coti.api_clientes.services.ClienteService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/cliente")
@@ -12,13 +11,37 @@ public class ClienteController {
 
     //pération to create a client
     @PostMapping("criar")
-    public String criarCliente(@RequestParam String nome, @RequestParam String cpf) {
+    public ResponseEntity<String> criarCliente(@RequestBody ClienteRequest request) {
         try {
             var clienteService = new ClienteService();
-            clienteService.cadastrarCliente(nome, cpf);
-            return "Cliente" + nome + "criado com sucesso!";
-        } catch (Exception e) {
-            return "Erro ao criar cliente: " + e.getMessage();
+            clienteService.cadastrarCliente(request);
+            return ResponseEntity.status(201).body("Cliente " + request.nome() + "criado com sucesso!");
+        }
+
+        catch(IllegalArgumentException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        }
+
+        catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("consultar")
+    public ResponseEntity<?> consultar(@RequestParam String nome) {
+        try {
+            var clienteService = new ClienteService();
+            var lista = clienteService.pesquisarClientes(nome);
+
+            return ResponseEntity.status(200).body(lista);
+        }
+
+        catch(IllegalArgumentException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        }
+
+        catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
         }
     }
 
