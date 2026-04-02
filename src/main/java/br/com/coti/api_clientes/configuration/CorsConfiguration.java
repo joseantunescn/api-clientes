@@ -1,4 +1,4 @@
-package br.com.cotiinformatica.api_clientes.configurations;
+package br.com.coti.api_clientes.configuration;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;

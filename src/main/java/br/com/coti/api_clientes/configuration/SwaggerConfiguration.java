@@ -1,4 +1,4 @@
-package br.com.cotiinformatica.api_clientes.configurations;
+package br.com.coti.api_clientes.configuration;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
