@@ -2,6 +2,7 @@ package br.com.coti.api_clientes.controllers;
 
 import br.com.coti.api_clientes.dtos.ClienteRequest;
 import br.com.coti.api_clientes.services.ClienteService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -9,11 +10,13 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/cliente")
 public class ClienteController {
 
+    @Autowired
+    private ClienteService clienteService;
+
     //pération to create a client
     @PostMapping("criar")
     public ResponseEntity<String> criarCliente(@RequestBody ClienteRequest request) {
         try {
-            var clienteService = new ClienteService();
             clienteService.cadastrarCliente(request);
             return ResponseEntity.status(201).body("Cliente " + request.nome() + "criado com sucesso!");
         }
@@ -30,7 +33,6 @@ public class ClienteController {
     @GetMapping("consultar")
     public ResponseEntity<?> consultar(@RequestParam String nome) {
         try {
-            var clienteService = new ClienteService();
             var lista = clienteService.pesquisarClientes(nome);
 
             return ResponseEntity.status(200).body(lista);
