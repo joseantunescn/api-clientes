@@ -31,13 +31,13 @@ public class ClienteService {
         }
 
         //check if cpf is not already registered in the database
-        if(clienteRepository.cpfExists(request.cpf())) {
+        if (clienteRepository.cpfExists(request.cpf())) {
             throw new IllegalArgumentException("O CPF já está cadastrado no sistema.");
         }
 
         var cliente = new Cliente();
 
-        cliente.setEnderecos( new ArrayList<>());
+        cliente.setEnderecos(new ArrayList<>());
         cliente.setNome(request.nome());
         cliente.setCpf(request.cpf());
 
@@ -61,13 +61,13 @@ public class ClienteService {
         }
 
 
-
     }
+
     //method to return a client list thru a name search
     public List<Cliente> pesquisarClientes(String nome) throws Exception {
 
         //client name must have at least 5 characters
-        if(nome == null || nome.trim().length() < 5) {
+        if (nome == null || nome.trim().length() < 5) {
             throw new IllegalArgumentException("O nome deve conter no mínimo 5 caracteres.");
         }
 
@@ -76,7 +76,19 @@ public class ClienteService {
 
     }
 
+    //METHOD TO ECLUDE A CLIENTE
+    public void excluirCliente(Integer id) throws Exception {
+        var result = clienteRepository.excluir(id);
+        if (!result) {
+            throw new IllegalArgumentException("Cliente com id " + id + " não encontrado.");
 
+        }
 
+    }
 
 }
+
+
+
+
+

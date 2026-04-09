@@ -1,6 +1,7 @@
 package br.com.coti.api_clientes.repositories;
 
 import br.com.coti.api_clientes.entities.Cliente;
+import br.com.coti.api_clientes.entities.Endereco;
 import br.com.coti.api_clientes.factories.ConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -70,23 +71,103 @@ public class ClienteRepository {
         //method to return a client list thru a name search
         public List<Cliente> listar (String nome) throws Exception {
             try (var connection = connectionFactory.getConnection()) {
-                var statement = connection.prepareStatement("SELECT * FROM clientes WHERE nome ILIKE ? ORDER BY nome");
+
+                var sql = """
+                        SELECT
+                        	c.ID AS IDCLIENTE,
+                        	c.NOME,
+                        	c.CPF,
+                        	e.ID AS IDENDERECO,
+                        	e.LOGRADOURO,
+                        	e.NUMERO,
+                        	e.COMPLEMENTO,
+                        	e.BAIRRO,
+                        	e.CIDADE,
+                        	e.UF,
+                        	e.CEP
+                        FROM CLIENTES c
+                        LEFT JOIN ENDERECOS e
+                        ON c.ID = e.CLIENTE_ID
+                        WHERE c.NOME ILIKE ? AND c.STATUS = 1
+                        ORDER BY c.NOME;
+                        """;
+
+                var statement = connection.prepareStatement(sql);
                 statement.setString(1, "%" + nome + "%");
                 var result = statement.executeQuery();
 
                 var lista = new ArrayList<Cliente>();
 
-                while (result.next()) {
-                    var cliente = new Cliente();
-                    cliente.setId(result.getInt("id"));
-                    cliente.setNome(result.getString("nome"));
-                    cliente.setCpf(result.getString("cpf"));
-                    lista.add(cliente);
+                var map = new java.util.HashMap<Integer, Cliente>();
 
+                while(result.next()) { //Percorrendo cada registro obtido na consulta
+
+                    //capturando o id do cliente no banco de dados
+                    var clienteId = result.getInt("IDCLIENTE");
+
+                    Cliente cliente; //Objeto Cliente
+
+                    if(map.containsKey(clienteId)) { //verificando se o cliente já foi lido
+                        cliente = map.get(clienteId); //pegando o cliente que já foi lido
+                    }
+                    else {
+                        cliente = new Cliente(); //Criando um cliente novo
+
+                        cliente.setId(result.getInt("IDCLIENTE"));
+                        cliente.setNome(result.getString("NOME"));
+                        cliente.setCpf(result.getString("CPF"));
+                        cliente.setEnderecos(new ArrayList<>());
+
+                        map.put(clienteId, cliente);
+
+                        lista.add(cliente); //adicionar o cliente dentro da lista
+                    }
+
+                    //Se houver endereços, adiciona na lista
+                    var enderecoId = result.getObject("IDENDERECO");
+                    if(enderecoId != null) { //verifiando se possui endereço
+
+                        var endereco = new Endereco();
+
+                        endereco.setId(result.getInt("IDENDERECO"));
+                        endereco.setLogradouro(result.getString("LOGRADOURO"));
+                        endereco.setNumero(result.getString("NUMERO"));
+                        endereco.setComplemento(result.getString("COMPLEMENTO"));
+                        endereco.setBairro(result.getString("BAIRRO"));
+                        endereco.setCidade(result.getString("CIDADE"));
+                        endereco.setUf(result.getString("UF"));
+                        endereco.setCep(result.getString("CEP"));
+
+                        cliente.getEnderecos().add(endereco);
+                    }
                 }
+
                 return lista;
             }
         }
 
-    }
+        //method to virtually delete a client from the database
+        public boolean excluir(Integer id) throws Exception {
+
+            try (var connection = connectionFactory.getConnection()) {
+
+                var sql = """
+                        UPDATE CLIENTES SET 
+                                STATUS = 0,
+                                DATAHORAEXCLUSAO = CURRENT_TIMESTAMP
+                            WHERE ID = ?
+                            AND STATUS = 1
+                    """;
+
+                var statement = connection.prepareStatement(sql);
+                statement.setInt(1, id);
+                var result = statement.executeUpdate();
+
+                return result > 0;
+            }
+        }
+
+
+
+}
 

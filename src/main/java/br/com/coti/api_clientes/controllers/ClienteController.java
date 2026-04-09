@@ -47,5 +47,23 @@ public class ClienteController {
         }
     }
 
+    //operation to delete a client
+    @DeleteMapping("excluir/{id}")
+    public ResponseEntity<String> delete(@PathVariable Integer id) {
+        try {
+            clienteService.excluirCliente(id);
+
+            return ResponseEntity.status(200).body("cliente excluído com sucesso!");
+        }
+
+        catch(IllegalArgumentException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
+        }
+
+        catch (Exception e) {
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+    }
+
 
 }
